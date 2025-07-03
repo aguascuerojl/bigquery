@@ -4,25 +4,25 @@ bq mk --dataset --location=us my_gcs_metadata_dataset
 
 ##crear una conexion BQ API connection debe estar habilitada
 
-bq mk --connection --location=us \
+bq mk --connection --location=us-central1 \
     --connection_type=CLOUD_RESOURCE \
-    --project_id=my-ml-project-12345 \
+    --project_id=en-percha-vision-dev \
     gcs_metadata_conn
 
 ## obtener el SA de BQ
-SERVICE_ACCOUNT_ID=$(bq show --format json --connection us.my_gcs_conn | jq -r .cloudResource.serviceAccountId)
+SERVICE_ACCOUNT_ID=$(bq show --format json --connection us-central1.gcs_metadata_conn | jq -r .cloudResource.serviceAccountId)
 echo "Service Account ID: $SERVICE_ACCOUNT_ID"
 
 
 ## Create the Object Table in BigQuery:
 
 bq mk --table \
-    --external_table_definition=gs://percha-annotated-images_full_download/*@us-central1.my_gcs_conn \
+    --external_table_definition=gs://percha-annotated-images_full_download/*@us-central1.gcs_metadata_conn \
     --object_metadata=SIMPLE \
     dataset_metadata.set3_metadata
 
 ##GRANT PERMISSIONS
 
-gcloud storage buckets add-iam-policy-binding gs://percha-annotated-images_full_download \
+gcloud storage buckets add-iam-policy-binding gs://tres_clasificaciones \
     --member="serviceAccount:$SERVICE_ACCOUNT_ID" \
     --role="roles/storage.objectViewer"
